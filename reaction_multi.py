@@ -2,6 +2,7 @@ from microbit import *
 import random
 import radio
 
+#Set some Boolean variables to check for syncing.
 searching = True
 listening = True
 sender = False
@@ -9,10 +10,13 @@ display.show(Image.TARGET)
 wait_time = random.randint(2000, 10000)
 radio.on()
 while searching:
+    #The M:B will listen for a server unless the user presses B.
     if button_b.was_pressed():
+        #Send the generated wait time to a waiting client.
         radio.send(str(wait_time))
         display.show("S")
         sender = True
+        #Listen for confirmation from any client M:B.
         while listening:
             confirmation = radio.receive()
             if confirmation is not None and int(confirmation) == wait_time:
@@ -42,6 +46,7 @@ radio.off()
 listening = True
 display.show(Image.ASLEEP)
 sleep(wait_time)
+#Display a cross if the user pressed too early.
 if button_a.get_presses():
     display.show(Image.NO)
 else:
@@ -56,6 +61,7 @@ else:
     display.show(Image.YES)
     sleep(1000)
     radio.on()
+    #Syncronise times between client and server to determine the winner.
     while listening:
         if sender and listening:
             radio.send(str(reaction_time))
@@ -71,6 +77,7 @@ else:
                 listening = False
             sleep(10)
     opponent_time = int(opponent_time)
+    #Display a happy face if this M:B has won, a sadface if it has lost and a duck if it's a tie.
     if opponent_time > reaction_time:
         display.show(Image.HAPPY)
     elif opponent_time < reaction_time:
